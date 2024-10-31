@@ -17,6 +17,22 @@ export const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
+export const getOneProduct = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  try {
+    const [product] = await db.query('SELECT * FROM tb_produto WHERE id = ?', [id]);
+    res.status(200).json({
+      message: 'Produto encontrado com sucesso!',
+      product: { product }
+    });
+    //res.json(product[0]);
+  } catch (error) {
+    console.error('Erro ao buscar produto pelo ID:', error);
+    res.status(500).json({ message: 'Erro ao buscar produto' });
+  }
+};
+
 // Função para criar um novo produto
 export const createProduct = async (req: Request, res: Response) => {
   const { nome, descricao, valor, estoque } = req.body;
@@ -50,14 +66,51 @@ export const uploadImage = upload.single('imagem');
 // Função para editar um produto
 export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { nome, descricao, imagem, valor, estoque } = req.body;
+  const { nome, descricao, valor, estoque } = req.body;
+  const imagem = req.file ? req.file.buffer : null;
+
   try {
-    const [result] = await db.execute(
-      'UPDATE tb_produto SET nome = ?, descricao = ?, imagem = ?, valor = ?, estoque = ? WHERE id = ?',
-      [nome, descricao, imagem, valor, estoque, id]
-    );
-    res.status(200).json({ message: `Produto ${nome} atualizado com sucesso!` });
+    let query = 'UPDATE tb_produto SET ';
+    const values: (string | number | Buffer)[] = []; // Declara o tipo de valores
+
+    // Adiciona apenas os campos que não estão vazios
+    if (nome) {
+      query += 'nome = ?, ';
+      values.push(nome);
+    }
+    if (descricao) {
+      query += 'descricao = ?, ';
+      values.push(descricao);
+    }
+    if (valor) {
+      query += 'valor = ?, ';
+      values.push(parseFloat(valor)); // Converte valor para número
+    }
+    if (estoque) {
+      query += 'estoque = ?, ';
+      values.push(parseInt(estoque, 10)); // Converte estoque para número
+    }
+    if (imagem) {
+      query += 'imagem = ?, ';
+      values.push(imagem); // buffer da imagem
+    }
+
+    // Remove a última vírgula e espaço extra antes do WHERE
+    query = query.slice(0, -2);
+    query += ' WHERE id = ?';
+    values.push(parseInt(id, 10)); // Converte id para número
+
+    // Executa a atualização no banco de dados
+    const [result] = await db.execute(query, values);
+
+    if ((result as any).affectedRows > 0) {
+      res.json({ message: `Produto ${id} atualizado com sucesso!` });
+    } else {
+      res.status(404).json({ message: 'Produto não encontrado' });
+    }
+
   } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
     res.status(500).json({ message: 'Erro ao atualizar produto', error });
   }
 };
