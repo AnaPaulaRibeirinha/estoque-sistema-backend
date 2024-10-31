@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "rootDir": "estoque-sistema-backend/src",
+      "outDir": "dist",
+      "strict": true,
+      "esModuleInterop": true
+    },
+    "include": ["estoque-sistema-backend/src/**/*"]
+  }
