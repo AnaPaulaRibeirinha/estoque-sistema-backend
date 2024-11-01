@@ -1,11 +1,12 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "rootDir": "estoque-sistema-backend/src",
-      "outDir": "dist",
-      "strict": true,
-      "esModuleInterop": true
-    },
-    "include": ["estoque-sistema-backend/src/**/*"]
-  }
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts"]
+}

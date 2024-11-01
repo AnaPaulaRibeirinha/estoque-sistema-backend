@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
 import { jwtConfig } from '../config/jwtConfig';
 
+
+
 // Função para listar todos os usuários
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
