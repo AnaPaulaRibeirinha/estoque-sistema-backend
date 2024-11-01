@@ -7,7 +7,7 @@ import { jwtConfig } from '../config/jwtConfig';
 
 
 
-// Função para listar todos os usuários
+
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const [rows] = await db.execute('SELECT * FROM tb_usuario');
@@ -17,21 +17,21 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// Função para criar um novo usuário
+
 export const createUser = async (req: Request, res: Response) => {
     const { nome, email, senha } = req.body;
     try {
-      // Verifica se o usuário já existe
+      
       const [existingUsers]: [Array<any>, any] = await db.execute('SELECT * FROM tb_usuario WHERE email = ?', [email]);
       if (existingUsers.length > 0) {
         res.status(400).json({ message: 'Usuário já existe.' });
         return;
       }
   
-      // Criptografa a senha
+      
       const hashedPassword = await bcrypt.hash(senha, 10);
       
-      // Cadastra o usuário
+      
       await db.execute(
         'INSERT INTO tb_usuario (id, nome, email, senha) VALUES (?, ?, ?, ?)',
         [uuidv4(), nome, email, hashedPassword]
@@ -42,7 +42,6 @@ export const createUser = async (req: Request, res: Response) => {
     }
   };
 
-// Função para editar um usuário
 export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { nome, email, senha } = req.body;
@@ -50,7 +49,7 @@ export const updateUser = async (req: Request, res: Response) => {
   try {
     const hashedPassword = senha ? await bcrypt.hash(senha, 10) : undefined;
 
-    // Atualiza o usuário
+   
     await db.execute(
       'UPDATE tb_usuario SET nome = ?, email = ?, senha = ? WHERE id = ?',
       [nome, email, hashedPassword || null, id]
@@ -61,7 +60,7 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-// Função para remover um usuário
+
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -76,7 +75,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const { email, senha } = req.body;
   
     try {
-      // Verifica se o usuário existe
+      
       const [users]: [Array<any>, any] = await db.execute('SELECT * FROM tb_usuario WHERE email = ?', [email]);
   
       if (users.length === 0) {
@@ -86,7 +85,7 @@ export const loginUser = async (req: Request, res: Response) => {
   
       const user = users[0];
   
-      // Compara a senha fornecida com a senha armazenada
+      
       const isPasswordValid = await bcrypt.compare(senha, user.senha);
       
       if (!isPasswordValid) {
@@ -94,10 +93,8 @@ export const loginUser = async (req: Request, res: Response) => {
         return;
       }
   
-      // Gera o token JWT
       const token = jwt.sign({ id: user.id, email: user.email }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
   
-      // Retorna o token junto com dados do usuário
       res.status(200).json({
         message: 'Login bem-sucedido!',
         token, 

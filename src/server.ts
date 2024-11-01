@@ -8,11 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Usar rotas de produtos e usuários com prefixos separados
 app.use('/api', productRoutes);
 app.use('/api', userRoutes);
 
-app.use(bodyParser.json({ limit: '10mb' })); // Aumente o limite conforme necessário
+app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 const PORT = process.env.PORT || 5000;

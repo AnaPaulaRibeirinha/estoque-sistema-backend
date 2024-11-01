@@ -3,11 +3,10 @@ import { db } from '../config/database';
 import multer from 'multer';
 
 const upload = multer({
-  storage: multer.memoryStorage(), // Salva a imagem na memória como buffer
-  limits: { fileSize: 2 * 1024 * 1024 }, // Define o limite de tamanho da imagem, aqui exemplo de 2MB
+  storage: multer.memoryStorage(), 
+  limits: { fileSize: 2 * 1024 * 1024 }, 
 });
 
-// Função para listar todos os produtos
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
     const [rows] = await db.execute('SELECT * FROM tb_produto');
@@ -26,28 +25,24 @@ export const getOneProduct = async (req: Request, res: Response) => {
       message: 'Produto encontrado com sucesso!',
       product: { product }
     });
-    //res.json(product[0]);
+
   } catch (error) {
     console.error('Erro ao buscar produto pelo ID:', error);
     res.status(500).json({ message: 'Erro ao buscar produto' });
   }
 };
 
-// Função para criar um novo produto
+
 export const createProduct = async (req: Request, res: Response) => {
   const { nome, descricao, valor, estoque } = req.body;
   const imagem = req.file?.buffer;
 
   try {
-    console.log("Essa é nome: " + nome);
-    console.log("Essa é descricao: " + descricao);
-    console.log("Essa é valor: " + valor);
-    console.log("Essa é estoque: " + estoque);
 
     const numericValor = parseFloat(valor);
     const numericEstoque = parseInt(estoque, 10);
 
-    // Salva o produto no banco de dados
+
     const [result] = await db.execute(
       'INSERT INTO tb_produto (nome, descricao, imagem, valor, estoque) VALUES (?, ?, ?, ?, ?)',
       [nome, descricao, imagem, numericValor, numericEstoque]
@@ -60,10 +55,8 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-// Middleware para usar o upload do multer antes de processar o produto
 export const uploadImage = upload.single('imagem');
 
-// Função para editar um produto
 export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { nome, descricao, valor, estoque } = req.body;
@@ -71,9 +64,8 @@ export const updateProduct = async (req: Request, res: Response) => {
 
   try {
     let query = 'UPDATE tb_produto SET ';
-    const values: (string | number | Buffer)[] = []; // Declara o tipo de valores
+    const values: (string | number | Buffer)[] = []; 
 
-    // Adiciona apenas os campos que não estão vazios
     if (nome) {
       query += 'nome = ?, ';
       values.push(nome);
@@ -84,23 +76,22 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
     if (valor) {
       query += 'valor = ?, ';
-      values.push(parseFloat(valor)); // Converte valor para número
+      values.push(parseFloat(valor)); 
     }
     if (estoque) {
       query += 'estoque = ?, ';
-      values.push(parseInt(estoque, 10)); // Converte estoque para número
+      values.push(parseInt(estoque, 10)); 
     }
     if (imagem) {
       query += 'imagem = ?, ';
-      values.push(imagem); // buffer da imagem
+      values.push(imagem); 
     }
 
-    // Remove a última vírgula e espaço extra antes do WHERE
+    
     query = query.slice(0, -2);
     query += ' WHERE id = ?';
-    values.push(parseInt(id, 10)); // Converte id para número
+    values.push(parseInt(id, 10)); 
 
-    // Executa a atualização no banco de dados
     const [result] = await db.execute(query, values);
 
     if ((result as any).affectedRows > 0) {
@@ -115,7 +106,6 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
-// Função para remover um produto
 export const deleteProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {

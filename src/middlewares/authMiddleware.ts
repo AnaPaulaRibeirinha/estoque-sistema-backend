@@ -18,7 +18,7 @@ export const authMiddleware: RequestHandler = (
     return;
   }
 
-  const token = authHeader.split(' ')[1]; // Extrai o token após "Bearer"
+  const token = authHeader.split(' ')[1];
 
   jwt.verify(token, jwtConfig.secret, (err, decoded) => {
     if (err) {
